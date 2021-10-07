@@ -1,19 +1,18 @@
 import {MessageCollector, MessageCollectorOptions, TextBasedChannels} from "discord.js";
 
-export class AnswerCollector extends MessageCollector {
+export default class AnswerCollector extends MessageCollector {
 
     public constructor(channel: TextBasedChannels, options?: MessageCollectorOptions) {
         super(channel, options);
-        this.initCollectorListeners(this)
     }
 
-    private initCollectorListeners(collector: MessageCollector) {
-        // filter is pre-defined; collected answer is always correct, so we stop collecting any new answers
-        collector.on("collect", () => {
-            collector.stop();
+    public start() {
+        // collected answer is always correct, so we stop collecting any new answers
+        this.on("collect", () => {
+            this.stop();
         });
 
-        collector.on("end", collected => {
+        this.on("end", collected => {
             console.log(collected.size);
         });
     }
