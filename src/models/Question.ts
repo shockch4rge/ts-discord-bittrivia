@@ -1,8 +1,6 @@
-import {QuestionData} from "../../utils/types";
-import {shuffle} from "../../utils/utils";
+import {QuestionData} from "../utils/types";
+import {shuffle} from "../utils/utils";
 import he from "he";
-import {TextBasedChannels} from "discord.js";
-import {sendMessage} from "../../utils/messaging";
 
 export default class Question {
     public readonly content: string;

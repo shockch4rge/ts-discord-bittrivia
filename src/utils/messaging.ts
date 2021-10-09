@@ -20,7 +20,7 @@ export async function deleteMessages(messages: Message[], wait?: number, interva
     await delay(wait ?? 5000);
     for (const message of messages) {
         await delay(interval ?? 0);
-        await message.delete().catch();
+        await message.delete().catch(() => {});
     }
 }
 

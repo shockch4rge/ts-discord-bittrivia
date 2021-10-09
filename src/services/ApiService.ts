@@ -1,5 +1,5 @@
 import axios from "axios";
-import {QuestionRequest, TokenRequest} from "../../utils/types";
+import {QuestionRequest, TokenRequest} from "../utils/types";
 
 export default class ApiService {
     private token: string | undefined;
@@ -59,5 +59,5 @@ export default class ApiService {
 export const URL = {
     RESET_TOKEN: "https://opentdb.com/api_token.php?command=reset&token=",
     REQUEST_TOKEN: "https://opentdb.com/api_token.php?command=request",
-    REQUEST_QUESTION: "https://opentdb.com/api.php?amount=1&token=",
+    REQUEST_QUESTION: "https://opentdb.com/api.php?amount=1&category=15&token=",
 } as const
