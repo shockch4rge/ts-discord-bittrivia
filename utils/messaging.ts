@@ -1,5 +1,4 @@
 import {EmojiIdentifierResolvable, Message, TextBasedChannels} from "discord.js";
-import Question from "../src/models/Question";
 import {createEmbed, CreateEmbedOptions, delay} from "./utils";
 
 export async function sendMessage(channel: TextBasedChannels, content: CreateEmbedOptions) {
@@ -7,20 +6,9 @@ export async function sendMessage(channel: TextBasedChannels, content: CreateEmb
     return await channel.send({ embeds: [embed] }).catch();
 }
 
-export async function askQuestion(channel: TextBasedChannels, question: Question) {
-    await sendMessage(channel, {
-        title: question.content,
-        fields: [
-            {name: "Category", value: question.category, inline: true},
-            {name: "Type", value: question.type, inline: true},
-            {name: "Difficulty", value: question.difficulty, inline: true},
-            {name: "1", value: question.allAnswers[0]},
-            {name: "2", value: question.allAnswers[1]},
-            {name: "3", value: question.allAnswers[2]},
-            {name: "4", value: question.allAnswers[3]},
-        ],
-        footer: "❗ There is only 1 correct answer."
-    });
+export async function editMessage(message: Message, content: CreateEmbedOptions) {
+    const embed = createEmbed(content);
+    return await message.edit({embeds: [embed]}).catch();
 }
 
 export async function sendWarning(channel: TextBasedChannels, content: string) {

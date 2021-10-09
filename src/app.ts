@@ -1,9 +1,9 @@
-import { Client, Intents} from 'discord.js'
+import {Client, Intents} from 'discord.js'
 import MainController from "./controllers/MainController";
-import { BOT_TOKEN } from "./auth.json";
+import {BOT_TOKEN} from "./auth.json";
 
 const bot = new Client({intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS]});
-const mainController = new MainController(bot);
+const mainController = new MainController();
 
 mainController.subscribeBotEvents(bot);
 
