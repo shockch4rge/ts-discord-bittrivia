@@ -52,12 +52,14 @@ export default class ApiService {
         }
 
         const tokenRequest = (await axios.get(`${URL.RESET_TOKEN}${this.token}`)).data as TokenRequest
-        return tokenRequest.token;
+        this.token = tokenRequest.token;
+
+        return this.token;
     }
 }
 
 export const URL = {
     RESET_TOKEN: "https://opentdb.com/api_token.php?command=reset&token=",
     REQUEST_TOKEN: "https://opentdb.com/api_token.php?command=request",
-    REQUEST_QUESTION: "https://opentdb.com/api.php?amount=1&category=15&token=",
+    REQUEST_QUESTION: "https://opentdb.com/api.php?amount=1&token=",
 } as const

@@ -20,7 +20,7 @@ export default class MessageController {
         if (this.messageLock) return;
 
         // 1% chance of question popping up with every message
-        const chance = 0.5
+        const chance = 1
 
         if (chance >= Math.random()) {
             await this.handleQuestionChance(message);
@@ -53,7 +53,7 @@ export default class MessageController {
         const questionMessage = await message.channel.send({embeds: [questionEmbed]});
 
         try {
-            const answers = await message.channel.awaitMessages({max: 1, time: 15000, errors: ['time']});
+            const answers = await message.channel.awaitMessages({max: 1, time: 20000, errors: ['time']});
 
             // correct answer
             if (!question.checkCorrect(answers.first()!.content)) {
@@ -85,6 +85,8 @@ export default class MessageController {
                 footer: `Correct answer: ${question.correctAnswer}`,
             })
             await deleteMessages([questionMessage, alertOutOfTime], 5000);
+
+            // allow sending questions again
             this.messageLock = false;
         }
     }
