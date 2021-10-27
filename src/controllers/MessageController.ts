@@ -21,8 +21,9 @@ export default class MessageController {
 
         // 1% chance of question popping up with every message
         const chance = 0.01;
+        const command = /^!!!question/;
 
-        if (chance >= Math.random()) {
+        if (chance >= Math.random() || command.test(message.content)) {
             await this.handleQuestionChance(message);
         }
     }
