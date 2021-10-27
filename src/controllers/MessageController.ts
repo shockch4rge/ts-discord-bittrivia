@@ -20,7 +20,7 @@ export default class MessageController {
         if (this.messageLock) return;
 
         // 1% chance of question popping up with every message
-        const chance = 1
+        const chance = 0.01;
 
         if (chance >= Math.random()) {
             await this.handleQuestionChance(message);
