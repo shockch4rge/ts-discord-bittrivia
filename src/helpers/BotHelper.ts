@@ -47,7 +47,11 @@ export default class BotHelper {
 
                 try {
                     // setup slash commands for each guild
-                    await this.deployGuildSlashCommands(guild, new SlashCommandDeployer(guild.id));
+                    const deployer = new SlashCommandDeployer(guild.id, this.interactionFiles);
+                    await deployer.deploy().catch(err => console.error(
+                        // @ts-ignore -> err is unknown type
+                        `Failed to deploy slash commands for Guild(${guild.name}): ${err.message}`
+                    ));
                 } catch (err) {
                     console.error(`❌ Couldn't deploy commands in ${guild.name}`);
                     continue;
@@ -73,7 +77,7 @@ export default class BotHelper {
 
             // Slash command
             if (interaction.isCommand()) {
-                await interaction.deferReply({ephemeral: true});
+                await interaction.deferReply({ephemeral: true}).catch(err => console.error(err.message));
                 const interactionFile = this.interactionFiles.get(interaction.commandName);
                 if (!interactionFile) return;
 
@@ -97,7 +101,7 @@ export default class BotHelper {
 
             // Button command
             if (interaction.isButton()) {
-                await interaction.deferReply({ephemeral: true});
+                await interaction.deferReply({ephemeral: true}).catch(err => console.error(err.message));
                 const buttonFile = this.buttonFiles.get(interaction.customId);
                 if (!buttonFile) return;
 
@@ -144,22 +148,6 @@ export default class BotHelper {
             const buttonFile = require(`../buttons/${buttonFileName}`) as iButtonFile;
             this.buttonFiles.set(buttonFile.id, buttonFile);
         }
-    }
-
-    private async deployGuildSlashCommands(guild: Guild, deployer: SlashCommandDeployer) {
-        this.interactionFiles.forEach(command => {
-            deployer.addCommand(command.data);
-        });
-
-        try {
-            await deployer.deploy();
-        } catch (err) {
-            console.error(
-                // @ts-ignore -> err is type 'unknown'
-                `Failed to deploy slash commands for Guild(${guild.name}): ${err.message}`
-            );
-        }
-
     }
 
     public static isFile(file: string) {

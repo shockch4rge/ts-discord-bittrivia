@@ -59,7 +59,7 @@ module.exports = {
             // Append buttons based on number of answers
             answerButtons.push(
                 new MessageButton()
-                    .setCustomId("answer")
+                    .setCustomId("answer-" + i.toString())
                     .setLabel(question.allAnswers[i])
                     .setEmoji(numbers.at(i)!)
                     .setStyle("PRIMARY"));
