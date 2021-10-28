@@ -1,5 +1,5 @@
-import {QuestionData} from "../utils/types";
-import {shuffle} from "../utils/utils";
+import {QuestionData} from "../utilities/types";
+import {shuffle} from "../utilities/utils";
 import he from "he";
 
 export default class Question {

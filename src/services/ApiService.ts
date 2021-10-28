@@ -1,10 +1,12 @@
 import axios from "axios";
-import {QuestionRequest, TokenRequest} from "../utils/types";
+import {QuestionRequest, TokenRequest} from "../utilities/types";
+import Question from "../models/Question";
 
 export default class ApiService {
     private token: string | undefined;
+    public question?: Question;
 
-    public async getQuestion() {
+    public async getQuestion(options: QuestionOptions) {
         const token = await this.getToken();
         const questionRequest = (await axios.get(`${URL.REQUEST_QUESTION}${token}`)).data as QuestionRequest;
 
@@ -25,7 +27,7 @@ export default class ApiService {
             case 4:
                 // set new token and rerun the function
                 this.token = await this.resetToken();
-                await this.getQuestion();
+                await this.getQuestion(options);
                 break;
 
             // Results returned successfully
@@ -34,7 +36,8 @@ export default class ApiService {
         }
 
         // we only request 1 question
-        return questionRequest.results[0];
+        this.question = new Question(questionRequest.results[0]);
+        return this.question;
     }
 
     private async getToken() {
@@ -56,6 +59,18 @@ export default class ApiService {
 
         return this.token;
     }
+}
+
+export interface QuestionOptions {
+    category?: string,
+    difficulty?: QuestionDifficulty
+}
+
+export enum QuestionDifficulty {
+    EASY = "easy",
+    MEDIUM = "medium",
+    HARD = "hard",
+    ANY = ""
 }
 
 export const URL = {
