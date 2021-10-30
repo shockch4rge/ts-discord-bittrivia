@@ -1,29 +1,29 @@
-import {SlashCommandBuilder} from "@discordjs/builders";
-import {REST} from "@discordjs/rest";
-import {BOT_TOKEN, APP_ID} from "../../auth.json";
-import {Routes} from "discord-api-types/v9";
-import {Collection} from "discord.js";
-import {iInteractionFile} from "./BotHelper";
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { REST } from "@discordjs/rest";
+import { APP_ID, BOT_TOKEN } from "../../auth.json";
+import { Routes } from "discord-api-types/v9";
+import { Collection } from "discord.js";
+import { InteractionFile } from "./BotHelper";
 
 export default class SlashCommandDeployer {
     private readonly guildId: string;
     private readonly commands: SlashCommandBuilder[];
-    private readonly interactionFiles: Collection<string, iInteractionFile>
+    private readonly interactionFiles: Collection<string, InteractionFile>
 
-    public constructor(guildId: string, interactionFiles: Collection<string, iInteractionFile>) {
+    public constructor(guildId: string, interactionFiles: Collection<string, InteractionFile>) {
         this.guildId = guildId;
-        this.commands = [];
         this.interactionFiles = interactionFiles;
+        this.commands = [];
 
-        this.interactionFiles.forEach(command => this.commands.push(command.data));
+        this.interactionFiles.forEach(file => this.commands.push(file.data));
     }
 
     public async deploy() {
-        const rest = new REST({version: "9"}).setToken(BOT_TOKEN)
+        const rest = new REST({ version: "9" }).setToken(BOT_TOKEN);
         await rest.put(
             Routes.applicationGuildCommands(APP_ID, this.guildId),
             {
-                body: this.commands.map(command => command.toJSON())
+                body: this.commands.map(command => command.toJSON()),
             }
         );
     }

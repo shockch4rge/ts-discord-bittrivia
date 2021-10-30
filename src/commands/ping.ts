@@ -1,6 +1,6 @@
-import {SlashCommandBuilder} from "@discordjs/builders";
-import {GuildMember, MessageActionRow, MessageButton} from "discord.js";
-import {iInteractionFile} from "../helpers/BotHelper";
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { GuildMember, MessageActionRow, MessageButton } from "discord.js";
+import { InteractionFile } from "../helpers/BotHelper";
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -29,4 +29,4 @@ module.exports = {
             });
         }
     }
-} as iInteractionFile;
+} as InteractionFile;
