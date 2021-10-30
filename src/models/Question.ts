@@ -1,15 +1,14 @@
-import {QuestionData} from "../utilities/types";
-import {shuffle} from "../utilities/utils";
+import { shuffle } from "../utilities/utils";
 import he from "he";
 
-export default class Question {
+export class Question {
     public readonly content: string;
     public readonly correctAnswer: string;
     public readonly wrongAnswers: string[];
     public readonly allAnswers: string[];
     public readonly category: string;
     public readonly type: string;
-    public readonly difficulty: string;
+    public readonly difficulty: QuestionDifficulty;
 
     public constructor(data: QuestionData) {
         this.content = he.decode(data.question);
@@ -20,23 +19,55 @@ export default class Question {
         this.allAnswers = shuffle(this.wrongAnswers.concat(this.correctAnswer));
         this.category = he.decode(data.category);
         this.type = he.decode(data.type);
-        this.difficulty = he.decode(data.difficulty);
+        this.difficulty = data.difficulty;
     }
 
     // Check if the answer is correct
     public checkCorrect(answer: string) {
-        // get numeric form in case user decides to answer with number
-        const ans: number = Number.parseInt(answer) - 1;
-        const correctIndex = this.allAnswers.indexOf(this.correctAnswer);
-        const correctString = this.correctAnswer.toLowerCase();
-
-        /*
-            In this case, the user can answer with either the index
-            or the literal string of the answer.
-         */
-        const isCorrectIndex = !Number.isNaN(ans) && ans === correctIndex;
-        const isCorrectString = new RegExp(correctString).test(answer);
-
-        return isCorrectIndex || isCorrectString;
+        return new RegExp(this.correctAnswer).test(answer);
     }
+}
+
+export enum QuestionCategory {
+    ANY = 0,
+    GENERAL_KNOWLEDGE = 9,
+    BOOKS,
+    FILM,
+    MUSIC,
+    MUSICALS_AND_THEATRE,
+    TELEVISION,
+    VIDEO_GAMES,
+    BOARD_GAMES,
+    NATURE,
+    COMPUTERS,
+    MATHEMATICS,
+    MYTHOLOGY,
+    SPORTS,
+    GEOGRAPHY,
+    HISTORY,
+    POLITICS,
+    ART,
+    CELEBRITIES,
+    ANIMALS,
+    VEHICLES,
+    COMICS,
+    GADGETS,
+    ANIME,
+    CARTOON
+}
+
+export enum QuestionDifficulty {
+    EASY = "easy",
+    MEDIUM = "medium",
+    HARD = "hard",
+    ANY = ""
+}
+
+export type QuestionData = {
+    category: string,
+    type: string,
+    difficulty: QuestionDifficulty,
+    question: string,
+    correct_answer: string,
+    incorrect_answers: string[],
 }
