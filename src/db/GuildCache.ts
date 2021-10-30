@@ -1,14 +1,14 @@
 import {Client, Guild} from "discord.js";
-import ApiService from "../services/ApiService";
+import TriviaService from "../services/TriviaService";
 
 export default class GuildCache {
-    public bot: Client;
-    public guild: Guild;
-    public service?: ApiService;
+    public readonly bot: Client;
+    public readonly guild: Guild;
+    public readonly service: TriviaService;
 
     public constructor(bot: Client, guild: Guild) {
         this.bot = bot;
         this.guild = guild;
+        this.service = new TriviaService();
     }
-
 }
