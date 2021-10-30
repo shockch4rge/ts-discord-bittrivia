@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { GuildMember, MessageActionRow, MessageButton } from "discord.js";
+import { GuildMember } from "discord.js";
 import { InteractionFile } from "../helpers/BotHelper";
 
 module.exports = {
@@ -12,21 +12,7 @@ module.exports = {
         const member = helper.interaction.member as GuildMember;
 
         if (member) {
-            const row = new MessageActionRow().addComponents([
-                new MessageButton()
-                    .setCustomId("true")
-                    .setLabel("TRUE")
-                    .setStyle("PRIMARY"),
-                new MessageButton()
-                    .setCustomId("false")
-                    .setLabel("FALSE")
-                    .setStyle("PRIMARY"),
-            ]);
-
-            await helper.interaction.followUp({
-                content: `Pong! ${helper.cache.bot.ws.ping}ms`,
-                components: [row]
-            });
+            await helper.interaction.followUp({ content: `Pong! ${helper.cache.bot.ws.ping}ms`, });
         }
     }
 } as InteractionFile;
