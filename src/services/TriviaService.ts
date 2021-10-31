@@ -5,10 +5,10 @@ export default class TriviaService {
     private token: string | undefined;
 
     public async getQuestion(category: QuestionCategory, difficulty: QuestionDifficulty) {
-        const token = await this.getToken();
+        this.token = await this.getToken();
 
         const questionRequest = (
-            await axios.get(`https://opentdb.com/api.php?amount=1&token=${token}&category=${category}&difficulty=${difficulty}`)
+            await axios.get(`https://opentdb.com/api.php?amount=1&token=${this.token}&category=${category}&difficulty=${difficulty}`)
         ).data as QuestionRequest;
 
         switch (questionRequest.response_code) {
@@ -39,12 +39,12 @@ export default class TriviaService {
     }
 
     private async getToken() {
-        if (!this.token) {
-            const tokenRequest = (await axios.get("https://opentdb.com/api_token.php?command=request")).data as TokenRequest
-            this.token = tokenRequest.token;
+        if (this.token) {
+            return this.token
         }
 
-        return this.token;
+        const tokenRequest = (await axios.get("https://opentdb.com/api_token.php?command=request")).data as TokenRequest
+        return tokenRequest.token
     }
 
     private async resetToken() {
@@ -53,9 +53,8 @@ export default class TriviaService {
         }
 
         const tokenRequest = (await axios.get(`https://opentdb.com/api_token.php?command=reset&token=${this.token}`)).data as TokenRequest
-        this.token = tokenRequest.token;
 
-        return this.token;
+        return tokenRequest.token;
     }
 }
 
