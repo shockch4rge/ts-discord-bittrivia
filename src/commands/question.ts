@@ -62,10 +62,10 @@ module.exports = {
     execute: async helper => {
         const service = helper.cache.service;
 
+        // may return null
         const category = helper.getInteractionInteger("category") as QuestionCategory;
         const difficulty = helper.getInteractionString("difficulty") as QuestionDifficulty;
 
-        // make sure to check for null values
         const questionData = await service.getQuestion(
             category ?? QuestionCategory.ANY,
             difficulty ?? QuestionDifficulty.ANY
@@ -108,46 +108,41 @@ module.exports = {
             ]
         }).catch(() => {});
 
-        const collector = helper.interaction.channel!
-            .createMessageComponentCollector({
+        const buttonInteraction = await helper.interaction.channel!
+            .awaitMessageComponent({
                 filter: i => i.customId.startsWith("answer_"),
                 componentType: "BUTTON",
-            });
+            }) as ButtonInteraction;
 
-        collector.on("collect", async (i: ButtonInteraction) => {
-            const respondent = i.member as GuildMember;
-            if (!respondent || respondent.user.bot) return;
+        const respondent = buttonInteraction.member as GuildMember;
+        if (!respondent || respondent.user.bot) return;
 
-            const button = i.component as MessageButton;
-            const answer = button.label!;
+        const button = buttonInteraction.component as MessageButton;
+        const answer = button.label!;
 
-            if (question.checkCorrect(answer)) {
-                await i.update({
-                    embeds: [new MessageEmbed()
-                        .setTitle("✅  You got the correct answer!")
-                        .setColor(MessageLevel.SUCCESS)
-                        .setFooter(`Answered by: ${respondent.displayName}`)
-                    ],
-                    components: [],
-                }).catch(() => {});
-            }
-            else {
-                await i.update({
-                    embeds: [new MessageEmbed()
-                        .setTitle("❌  You got the wrong answer!")
-                        .setDescription(`Correct answer: ${question.correctAnswer}`)
-                        .setColor(MessageLevel.WARNING)
-                        .setFooter(`Answered by: ${respondent.displayName}`)
-                    ],
-                    components: [],
-                }).catch(() => {});
-            }
+        if (question.checkCorrect(answer)) {
+            await buttonInteraction.update({
+                embeds: [new MessageEmbed()
+                    .setTitle("✅  You got the correct answer!")
+                    .setColor(MessageLevel.SUCCESS)
+                    .setFooter(`Answered by: ${respondent.displayName}`)
+                ],
+                components: [],
+            }).catch(() => {});
+        }
+        else {
+            await buttonInteraction.update({
+                embeds: [new MessageEmbed()
+                    .setTitle("❌  You got the wrong answer!")
+                    .setDescription(`Correct answer: ${question.correctAnswer}`)
+                    .setColor(MessageLevel.WARNING)
+                    .setFooter(`Answered by: ${respondent.displayName}`)
+                ],
+                components: [],
+            }).catch(() => {});
+        }
 
-            collector.stop();
-
-            await delay(7000);
-            await helper.interaction.deleteReply().catch(() => {});
-        });
-
+        await delay(7000);
+        await helper.interaction.deleteReply().catch(() => {});
     }
 } as InteractionFile;
