@@ -5,6 +5,7 @@ import { createEmbed, delay } from "../utilities/utils";
 import {
     ButtonInteraction,
     EmojiIdentifierResolvable,
+    GuildMember,
     MessageActionRow,
     MessageButton,
     MessageEmbed
@@ -114,6 +115,9 @@ module.exports = {
             });
 
         collector.on("collect", async (i: ButtonInteraction) => {
+            const respondent = i.member as GuildMember;
+            if (!respondent || respondent.user.bot) return;
+
             const button = i.component as MessageButton;
             const answer = button.label!;
 
@@ -122,6 +126,7 @@ module.exports = {
                     embeds: [new MessageEmbed()
                         .setTitle("✅  You got the correct answer!")
                         .setColor(MessageLevel.SUCCESS)
+                        .setFooter(`Answered by: ${respondent.displayName}`)
                     ],
                     components: [],
                 }).catch(() => {});
@@ -130,11 +135,15 @@ module.exports = {
                 await i.update({
                     embeds: [new MessageEmbed()
                         .setTitle("❌  You got the wrong answer!")
+                        .setDescription(`Correct answer: ${question.correctAnswer}`)
                         .setColor(MessageLevel.WARNING)
+                        .setFooter(`Answered by: ${respondent.displayName}`)
                     ],
                     components: [],
                 }).catch(() => {});
             }
+
+            collector.stop();
 
             await delay(7000);
             await helper.interaction.deleteReply().catch(() => {});
