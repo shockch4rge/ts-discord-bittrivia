@@ -8,21 +8,20 @@ export class Question {
     public readonly allAnswers: string[];
     public readonly category: string;
     public readonly type: string;
-    public readonly difficulty: QuestionDifficulty;
+    public readonly difficulty: string;
 
     public constructor(data: QuestionData) {
+        // decode all properties as data received is encoded
         this.content = he.decode(data.question);
         this.correctAnswer = he.decode(data.correct_answer);
-        // decode every wrong answer
         this.wrongAnswers = data.incorrect_answers.map(answer => he.decode(answer));
-        // combine correct and wrong answers and shuffle them for randomness
+        // randomise correct answer + wrong answers
         this.allAnswers = shuffle(this.wrongAnswers.concat(this.correctAnswer));
         this.category = he.decode(data.category);
         this.type = he.decode(data.type);
-        this.difficulty = data.difficulty;
+        this.difficulty = he.decode(data.difficulty);
     }
 
-    // Check if the answer is correct
     public checkCorrect(answer: string) {
         return new RegExp(this.correctAnswer).test(answer);
     }
