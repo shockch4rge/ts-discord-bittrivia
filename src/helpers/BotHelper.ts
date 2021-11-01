@@ -84,7 +84,7 @@ export default class BotHelper {
 
             // Slash command
             if (interaction.isCommand()) {
-                await interaction.deferReply().catch();
+                await interaction.deferReply().catch(() => {});
                 const interactionFile = this.interactionFiles.get(interaction.commandName);
                 if (!interactionFile) return;
 

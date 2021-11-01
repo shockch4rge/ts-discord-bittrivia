@@ -105,7 +105,7 @@ module.exports = {
                 new MessageActionRow()
                     .addComponents(answerButtons),
             ]
-        }).catch();
+        }).catch(() => {});
 
         const collector = helper.interaction.channel!
             .createMessageComponentCollector({
@@ -124,7 +124,7 @@ module.exports = {
                         .setColor(MessageLevel.SUCCESS)
                     ],
                     components: [],
-                }).catch();
+                }).catch(() => {});
             }
             else {
                 await i.update({
@@ -133,11 +133,11 @@ module.exports = {
                         .setColor(MessageLevel.WARNING)
                     ],
                     components: [],
-                }).catch();
+                }).catch(() => {});
             }
 
             await delay(7000);
-            await helper.interaction.deleteReply();
+            await helper.interaction.deleteReply().catch(() => {});
         });
 
     }

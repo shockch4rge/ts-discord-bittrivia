@@ -8,7 +8,7 @@ export default class CommandInteractionHelper extends InteractionHelper<CommandI
     }
 
     public async respond(content: string) {
-        await this.interaction.followUp({ content: content, ephemeral: true }).catch();
+        await this.interaction.followUp({ content: content, ephemeral: true }).catch(() => {});
     }
 
     public getInteractionMentionable(name: string) {
