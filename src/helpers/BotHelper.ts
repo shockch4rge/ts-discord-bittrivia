@@ -106,7 +106,6 @@ export default class BotHelper {
 
             // Button command
             if (interaction.isButton()) {
-                // await interaction.deferReply().catch(err => console.error(err.message));
                 const buttonFile = this.buttonFiles.get(interaction.customId);
                 if (!buttonFile) return;
 
