@@ -1,9 +1,5 @@
-import {
-    ColorResolvable,
-    EmbedFieldData,
-    MessageEmbed,
-} from "discord.js";
-import {MessageLevel} from "./messaging";
+import { ColorResolvable, EmbedFieldData, MessageEmbed, } from "discord.js";
+import { MessageLevel } from "./messaging";
 
 export async function delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));

@@ -1,9 +1,10 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { REST } from "@discordjs/rest";
-import { APP_ID, BOT_TOKEN } from "../../auth.json";
 import { Routes } from "discord-api-types/v9";
 import { Collection } from "discord.js";
-import { InteractionFile } from "./BotHelper";
+import { InteractionFile } from "../helpers/BotHelper";
+
+const auth = require("../../auth.json");
 
 export default class SlashCommandDeployer {
     private readonly guildId: string;
@@ -19,9 +20,9 @@ export default class SlashCommandDeployer {
     }
 
     public async deploy() {
-        const rest = new REST({ version: "9" }).setToken(BOT_TOKEN);
+        const rest = new REST({ version: "9" }).setToken(auth.bot_token);
         await rest.put(
-            Routes.applicationGuildCommands(APP_ID, this.guildId),
+            Routes.applicationGuildCommands(auth.app_id, this.guildId),
             {
                 body: this.commands.map(command => command.toJSON()),
             }
