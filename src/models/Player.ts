@@ -9,20 +9,19 @@ export default class Player {
      *
      * @param member
      * @param data
-     * @private Create new players with the {@link getNew} method.
      */
     public constructor(member: GuildMember, data: PlayerData) {
         this.member = member;
         this.data = data;
     }
 
-    public static getNew(member: GuildMember): Player {
-        return new Player(member, {
+    public static getEmptyData(): PlayerData {
+        return {
             xp: 0,
             level: Level.ZERO,
             correct: 0,
             wrong: 0,
-        });
+        } as PlayerData
     }
 }
 
