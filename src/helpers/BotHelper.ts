@@ -1,10 +1,10 @@
 import { Client, Collection, Message } from "discord.js";
-import { SlashCommandBuilder } from "@discordjs/builders";
+import { SlashCommandBuilder, SlashCommandSubcommandBuilder } from "@discordjs/builders";
 import fs from 'fs';
 import path from 'path';
 import CommandInteractionHelper from "./CommandInteractionHelper";
 import BotCache from "../db/BotCache";
-import SlashCommandDeployer from "./SlashCommandDeployer";
+import SlashCommandDeployer from "../utilities/SlashCommandDeployer";
 import GuildCache from "../db/GuildCache";
 import ButtonInteractionHelper from "./ButtonInteractionHelper";
 import { delay } from "../utilities/utils";
@@ -24,7 +24,9 @@ export default class BotHelper {
         this.messageFiles = new Collection();
         this.interactionFiles = new Collection();
         this.buttonFiles = new Collection();
+    }
 
+    public setup() {
         this.setupInteractionCommands();
         this.setupButtonCommands();
         this.setupBotEvents();
@@ -34,8 +36,7 @@ export default class BotHelper {
         // ready
         this.bot.on("ready", async bot => {
             console.log(`${bot.user.tag} is ready!`);
-
-            const guilds = bot.guilds.cache.toJSON();
+            const guilds = this.bot.guilds.cache.toJSON();
 
             for (const guild of guilds) {
                 let cache: GuildCache | undefined;
@@ -45,7 +46,8 @@ export default class BotHelper {
                 }
                 catch (err) {
                     // @ts-ignore
-                    console.error(`❌  Couldn't find ${guild.name}: ${err.message}`);
+                    console.error(`❌  Couldn't find ${guild.name}`);
+                    await guild.leave();
                     continue;
                 }
 
@@ -58,11 +60,13 @@ export default class BotHelper {
                 catch (err) {
                     // @ts-ignore
                     console.error(`❌  Failed to deploy commands in ${guild.name}: ${err.message}`);
+                    await guild.leave();
                     continue;
                 }
 
                 console.log(`✅  Restored cache for ${guild.name}`);
             }
+
         });
 
         // messageCreate
@@ -122,6 +126,19 @@ export default class BotHelper {
                 }
             }
         });
+
+        // guildCreate
+        this.bot.on("guildCreate", async guild => {
+            await this.botCache.createGuildCache(guild);
+            const deployer = new SlashCommandDeployer(guild.id, this.interactionFiles);
+            await deployer.deploy();
+        });
+
+        // guildDelete
+        this.bot.on("guildDelete", async guild => {
+            console.log(`Removed from guild: ${guild.name}`);
+            await this.botCache.deleteGuildCache(guild.id);
+        })
     }
 
     private setupInteractionCommands() {
@@ -169,6 +186,11 @@ export default class BotHelper {
 
 export type InteractionFile = {
     data: SlashCommandBuilder,
+    execute: (helper: CommandInteractionHelper) => Promise<any>,
+}
+
+export type InteractionSubCommandFile = {
+    data: SlashCommandSubcommandBuilder,
     execute: (helper: CommandInteractionHelper) => Promise<any>,
 }
 
