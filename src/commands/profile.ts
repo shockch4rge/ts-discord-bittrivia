@@ -7,11 +7,11 @@ import LevelCalculator from "../utilities/LevelCalculator";
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("profile")
-        .setDescription("Get the stats of yourself or another player's in the server!")
+        .setDescription("View your own or someone else's profile in the server.")
         .addStringOption(option =>
             option
                 .setName("player-id")
-                .setDescription("The id of the player to get stats of. Leave empty to get your own.")
+                .setDescription("The id of the player to fetch the profile of. Leave empty for your own.")
                 .setRequired(false)
         ),
 
