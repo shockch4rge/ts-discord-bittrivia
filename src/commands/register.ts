@@ -13,22 +13,23 @@ module.exports = {
 
         try {
             await helper.cache.registerPlayer(member);
-            await helper.interaction.followUp({
-                embeds: [new MessageEmbed()
-                    .setTitle("✅  Registered in the server!")
-                    .setColor(MessageLevel.SUCCESS)],
-                ephemeral: false,
-            });
         }
-            // member has already registered as player in the guild
         catch {
             await helper.interaction.followUp({
                 embeds: [new MessageEmbed()
                     .setTitle("❌  You've already registered in the server!")
                     .setColor(MessageLevel.WARNING)],
-                ephemeral: false,
+                ephemeral: true,
             });
+            return;
         }
+
+        await helper.interaction.followUp({
+            embeds: [new MessageEmbed()
+                .setTitle("✅  Registered in the server!")
+                .setColor(MessageLevel.SUCCESS)],
+            ephemeral: true,
+        });
     }
 
 } as InteractionFile;
