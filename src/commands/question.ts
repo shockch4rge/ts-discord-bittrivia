@@ -86,7 +86,7 @@ module.exports = {
         const numbers: EmojiIdentifierResolvable[] = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣"];
 
         for (let i = 0; i < question.allAnswers.length; i++) {
-            // append all answers to the question
+            // append each answer to the question
             questionEmbed.addField(
                 `${i + 1}.`,
                 question.allAnswers[i]);
@@ -108,11 +108,27 @@ module.exports = {
             ]
         }).catch(() => {});
 
-        const buttonInteraction = await helper.interaction.channel!
-            .awaitMessageComponent({
-                filter: i => i.customId.startsWith("answer_"),
-                componentType: "BUTTON",
-            }) as ButtonInteraction;
+        let buttonInteraction: ButtonInteraction;
+
+        try {
+            buttonInteraction = await helper.interaction.channel!
+                .awaitMessageComponent({
+                    filter: i => i.customId.startsWith("answer_"),
+                    componentType: "BUTTON",
+                    time: 15000,
+                }) as ButtonInteraction;
+        }
+        catch {
+            await helper.interaction.editReply({
+                embeds: [new MessageEmbed()
+                    .setTitle("🕕  You ran out of time!")
+                    .setDescription(`Correct answer: ${question.correctAnswer}`)
+                ],
+            });
+            await delay(5000);
+            await helper.interaction.deleteReply();
+            return;
+        }
 
         const respondent = buttonInteraction.member as GuildMember;
         if (!respondent || respondent.user.bot) return;
