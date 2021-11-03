@@ -1,7 +1,7 @@
 import { InteractionFile } from "../helpers/BotHelper";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { Question, QuestionCategory, QuestionDifficulty } from "../models/Question";
-import { createEmbed, delay } from "../utilities/utils";
+import { delay } from "../utilities/utils";
 import {
     ButtonInteraction,
     EmojiIdentifierResolvable,
@@ -72,15 +72,12 @@ module.exports = {
         );
         const question = new Question(questionData);
 
-        const questionEmbed = createEmbed({
-            title: question.content,
-            fields: [
-                { name: "Category", value: question.category, inline: true },
-                { name: "Type", value: question.type, inline: true },
-                { name: "Difficulty", value: question.difficulty, inline: true },
-            ],
-            footer: "❗  There is only 1 correct answer."
-        });
+        const questionEmbed = new MessageEmbed()
+            .setTitle(question.content)
+            .addField("Category", question.category, true)
+            .addField("Type", question.type, true)
+            .addField("Difficulty", question.difficulty, true)
+            .setFooter("❗  There is only 1 correct answer.");
 
         const answerButtons: MessageButton[] = [];
         const numbers: EmojiIdentifierResolvable[] = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣"];
@@ -106,7 +103,8 @@ module.exports = {
                 new MessageActionRow()
                     .addComponents(answerButtons),
             ]
-        }).catch(() => {});
+        }).catch(() => {
+        });
 
         let buttonInteraction: ButtonInteraction;
 
@@ -144,7 +142,8 @@ module.exports = {
                     .setFooter(`Answered by: ${respondent.displayName}`)
                 ],
                 components: [],
-            }).catch(() => {});
+            }).catch(() => {
+            });
         }
         else {
             await buttonInteraction.update({
@@ -155,10 +154,12 @@ module.exports = {
                     .setFooter(`Answered by: ${respondent.displayName}`)
                 ],
                 components: [],
-            }).catch(() => {});
+            }).catch(() => {
+            });
         }
 
         await delay(7000);
-        await helper.interaction.deleteReply().catch(() => {});
+        await helper.interaction.deleteReply().catch(() => {
+        });
     }
 } as InteractionFile;
