@@ -2,7 +2,6 @@ import { Client, Collection, Guild, GuildMember } from "discord.js";
 import TriviaService from "../services/TriviaService";
 import Player from "../models/Player";
 import { firestore } from "firebase-admin";
-import { Level } from "../utilities/LevelCalculator";
 import CollectionReference = firestore.CollectionReference;
 import DocumentData = firestore.DocumentData;
 
@@ -26,20 +25,21 @@ export default class GuildCache {
     private cachePlayersFromDb() {
         this.playerRefs.get().then(snap => {
             snap.forEach(doc => {
-                const member = this.guild.members.cache.get(doc.id);
+                console.log(doc.data());
+                const member = this.guild.members.cache.find(member => member.id === doc.id);
 
                 if (member) {
-                    this.players.set(doc.id, new Player(member,{
-                        level: doc.get("level"),
-                        xp: doc.get("xp"),
-                        correct: doc.get("questionsCorrect"),
-                        wrong: doc.get("questionsWrong"),
+                    this.players.set(doc.id, new Player(member, {
+                        level: doc.get("level") ?? -1,
+                        xp: doc.get("xp") ?? -1,
+                        correct: doc.get("correct") ?? -1,
+                        wrong: doc.get("wrong") ?? -1,
                     }));
                 }
             });
         });
 
-        console.log(`Cached ${this.players.size} players from ${this.guild.name}`);
+        console.log(`Cached ${this.players.size} players in ${this.guild.name}`);
     }
 
     public findPlayer(id: string) {
@@ -66,11 +66,12 @@ export default class GuildCache {
                     }
                     // register the player into the db
                     else {
+                        const emptyData = Player.getEmptyData();
+
                         this.playerRefs
                             .doc(foundMember.id)
-                            .set({ xp: 0, level: Level.ZERO, correct: 0, wrong: 0 } as DocumentData)
-                            .then(() => console.log(`${foundMember.id}`));
-                        this.players.set(foundMember.id, Player.getNew(foundMember));
+                            .set(emptyData as DocumentData)
+                        this.players.set(foundMember.id, new Player(foundMember, emptyData));
                         resolve();
                     }
                 });
