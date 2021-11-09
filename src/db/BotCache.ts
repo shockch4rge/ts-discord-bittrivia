@@ -22,47 +22,27 @@ export default class BotCache {
         this.guildRefs = this.db.collection("guilds");
     }
 
-    public getGuildCache(guild: Guild): Promise<GuildCache> {
-        return new Promise<GuildCache>((resolve, reject) => {
-            let cache = this.guildCaches.get(guild.id);
+    public async getGuildCache(guild: Guild) {
+        let cache = this.guildCaches.get(guild.id);
 
-            // guild doesn't exist locally; add it
-            if (!cache) {
-                const playerRefs = this.guildRefs
-                    .doc(guild.id)
-                    .collection("players");
-                cache = new GuildCache(this.bot, guild, playerRefs);
-                this.guildCaches.set(guild.id, cache);
+        if (!cache) {
+            cache = await this.createGuildCache(guild);
+        }
 
-                this.guildRefs
-                    .doc(guild.id)
-                    .get()
-                    .then(snap => {
-                        if (!snap.exists) {
-                            reject();
-                        }
-                        else {
-                            resolve(cache!);
-                        }
-                    });
-
-            }
-            // guild exists
-            else {
-                resolve(cache);
-            }
-        });
+        return cache!;
     }
 
     public async createGuildCache(guild: Guild) {
-        const doc = await this.guildRefs.doc(guild.id).get();
-        if (!doc.exists) {
-            await this.guildRefs
+        const snap = await this.guildRefs.doc(guild.id).get();
+        if (!snap.exists) {
+            const playerRefs = this.guildRefs
                 .doc(guild.id)
-                .collection("members");
-            console.log("Created guild")
+                .collection("players");
+
+            const cache = new GuildCache(this.bot, guild, playerRefs);
+            this.guildCaches.set(guild.id, cache);
+            return cache;
         }
-        await this.getGuildCache(guild);
     }
 
     public async deleteGuildCache(guildId: string) {
