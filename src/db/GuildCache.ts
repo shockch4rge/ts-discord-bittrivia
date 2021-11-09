@@ -25,8 +25,7 @@ export default class GuildCache {
     private cachePlayersFromDb() {
         this.playerRefs.get().then(snap => {
             snap.forEach(doc => {
-                console.log(doc.data());
-                const member = this.guild.members.cache.find(member => member.id === doc.id);
+                const member = this.guild.members.cache.get(doc.id);
 
                 if (member) {
                     this.players.set(doc.id, new Player(member, {
@@ -38,43 +37,33 @@ export default class GuildCache {
                 }
             });
         });
-
-        console.log(`Cached ${this.players.size} players in ${this.guild.name}`);
     }
 
-    public findPlayer(id: string) {
-        return this.players.get(id);
+    /**
+     * This method will always return a player, as they are derived from guild members.
+     * @param member
+     */
+    public async getPlayer(member: GuildMember) {
+        let player = this.players.get(member.id);
+
+        if (!player) {
+            player = await this.registerPlayer(member);
+        }
+
+        return player!;
     }
 
-    public registerPlayer(member: GuildMember): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            const foundMember = this.guild.members.cache.get(member.id);
+    public async registerPlayer(member: GuildMember) {
+        const snap = await this.playerRefs.doc(member.id).get();
 
-            if (!foundMember) {
-                console.error(`Could not find member: ${member.id}`);
-                reject();
-                return;
-            }
+        if (!snap.exists) {
+            await this.playerRefs
+                .doc(member.id)
+                .create(Player.getEmptyData() as DocumentData);
 
-            this.playerRefs
-                .doc(foundMember.id)
-                .get()
-                .then(snap => {
-                    // player is already registered in the db
-                    if (snap.exists) {
-                        reject();
-                    }
-                    // register the player into the db
-                    else {
-                        const emptyData = Player.getEmptyData();
-
-                        this.playerRefs
-                            .doc(foundMember.id)
-                            .set(emptyData as DocumentData)
-                        this.players.set(foundMember.id, new Player(foundMember, emptyData));
-                        resolve();
-                    }
-                });
-        });
+            const player = new Player(member, Player.getEmptyData());
+            this.players.set(player.member.id, player);
+            return player;
+        }
     }
 }
