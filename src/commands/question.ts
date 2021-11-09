@@ -55,7 +55,8 @@ module.exports = {
                 .addChoices([
                     ["easy", QuestionDifficulty.EASY],
                     ["medium", QuestionDifficulty.MEDIUM],
-                    ["hard", QuestionDifficulty.HARD]])
+                    ["hard", QuestionDifficulty.HARD]
+                ])
                 .setRequired(false)
         ),
 
@@ -83,14 +84,8 @@ module.exports = {
         const numbers: EmojiIdentifierResolvable[] = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣"];
 
         for (let i = 0; i < question.allAnswers.length; i++) {
-            // append each answer to the question
-            questionEmbed.addField(
-                `${i + 1}.`,
-                question.allAnswers[i]);
-
-            // append buttons based on number of answers
-            answerButtons.push(
-                new MessageButton()
+            questionEmbed.addField(`${i + 1}.`, question.allAnswers[i]);
+            answerButtons.push(new MessageButton()
                     .setCustomId(`answer_${i}`)
                     .setLabel(question.allAnswers[i])
                     .setEmoji(numbers.at(i)!)
@@ -99,10 +94,8 @@ module.exports = {
 
         await helper.interaction.editReply({
             embeds: [questionEmbed],
-            components: [
-                new MessageActionRow()
-                    .addComponents(answerButtons),
-            ]
+            components: [new MessageActionRow()
+                .addComponents(answerButtons)]
         }).catch(() => {
         });
 
@@ -120,8 +113,9 @@ module.exports = {
             await helper.interaction.editReply({
                 embeds: [new MessageEmbed()
                     .setTitle("🕕  You ran out of time!")
-                    .setDescription(`Correct answer: ${question.correctAnswer}`)
-                ],
+                    .setDescription(`Correct answer: ${question.correctAnswer}`)],
+                components: [],
+            }).catch(() => {
             });
             await delay(5000);
             await helper.interaction.deleteReply();
@@ -138,9 +132,9 @@ module.exports = {
             await buttonInteraction.update({
                 embeds: [new MessageEmbed()
                     .setTitle("✅  You got the correct answer!")
+                    .setDescription(`Correct answer: ${question.correctAnswer}`)
                     .setColor(MessageLevel.SUCCESS)
-                    .setFooter(`Answered by: ${respondent.displayName}`)
-                ],
+                    .setFooter(`Answered by: ${respondent.displayName}`)],
                 components: [],
             }).catch(() => {
             });
@@ -151,8 +145,7 @@ module.exports = {
                     .setTitle("❌  You got the wrong answer!")
                     .setDescription(`Correct answer: ${question.correctAnswer}`)
                     .setColor(MessageLevel.WARNING)
-                    .setFooter(`Answered by: ${respondent.displayName}`)
-                ],
+                    .setFooter(`Answered by: ${respondent.displayName}`)],
                 components: [],
             }).catch(() => {
             });
