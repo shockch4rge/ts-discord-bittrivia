@@ -1,77 +1,53 @@
 import { InteractionFile } from "../helpers/BotHelper";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { GuildMember, MessageEmbed } from "discord.js";
-import { MessageLevel } from "../utilities/messaging";
 import LevelCalculator from "../utilities/LevelCalculator";
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("profile")
         .setDescription("View your own or someone else's profile in the server.")
-        .addStringOption(option =>
+        .addMentionableOption(option =>
             option
-                .setName("player-id")
-                .setDescription("The id of the player to fetch the profile of. Leave empty for your own.")
+                .setName("member")
+                .setDescription("The player to fetch the profile of. Leave empty for your own.")
                 .setRequired(false)
         ),
 
     execute: async helper => {
-        const playerId = helper.getInteractionString("player-id");
         const calculator = new LevelCalculator();
 
-        // user requested another player's stats
-        if (playerId) {
-            const player = helper.cache.findPlayer(playerId);
+        // may be null
+        let member = helper.getInteractionMentionable("member") as GuildMember | null;
 
-            // requested player doesn't exist
-            if (!player) {
-                await helper.interaction.followUp({
-                    embeds: [new MessageEmbed()
-                        .setTitle(`❌  That player doesn't exist in ${helper.interaction.guild!.name}!`)
-                        .setDescription(`Given ID: ${playerId}`)
-                        .setColor(MessageLevel.WARNING)
-                    ],
-                    ephemeral: true,
-                }).catch(() => {
-                });
-            }
-            else {
-                const { level, remainder } = calculator.getLevelFromXp(player.data.xp);
-
-                await helper.interaction.followUp({
-                    embeds: [new MessageEmbed()
-                        .setTitle(`${player.member.displayName}`)
-                        .addField("Guild", `${helper.interaction.guild!.name}`)
-                        .addField("Level", `${level} -> ${remainder} xp into next level`)
-                        .addField("Total Experience", `${player.data.xp}`, true)
-                        .addField("Correct", `${player.data.correct} ✅`)
-                        .addField("Wrong", `${player.data.wrong} ❌`, true)
-                    ],
-                    ephemeral: true,
-                }).catch(() => {
-                });
-            }
+        // user requested own stats
+        if (!member) {
+            member = helper.interaction.member as GuildMember;
         }
-        // user requests own stats
-        else {
-            const member = helper.interaction.member as GuildMember;
-            const player = helper.cache.findPlayer(member.id)!;
 
-            const { level, remainder } = calculator.getLevelFromXp(player.data.xp);
+        const player = await helper.cache.getPlayer(member);
 
+        // user tried to mention a bot
+        if (player.member.user.bot) {
             await helper.interaction.followUp({
-                embeds: [new MessageEmbed()
-                    .setTitle(`${player.member.displayName}`)
-                    .addField("Guild", `${helper.interaction.guild!.name}`)
-                    .addField("Level", `${level} -> ${remainder} xp into next level`)
-                    .addField("Total Experience", `${player.data.xp}`, true)
-                    .addField("Questions answered correctly", `${player.data.correct} ✅`)
-                    .addField("Questions answered wrongly", `${player.data.wrong} ❌`, true)
-                ],
+                content: "Bots are not valid players!",
                 ephemeral: true,
             }).catch(() => {
             });
         }
-    }
 
+        const { level, remainder } = calculator.getLevelFromXp(player.data.xp);
+
+        await helper.interaction.followUp({
+            embeds: [new MessageEmbed()
+                .setTitle(`${player.member.displayName}`)
+                .addField("Guild", `${helper.interaction.guild!.name}`)
+                .addField("Level", `${level} -> ${remainder} xp into next level`)
+                .addField("Total Experience", `${player.data.xp}`, true)
+                .addField("Correct", `${player.data.correct} ✅`)
+                .addField("Wrong", `${player.data.wrong} ❌`, true)],
+            ephemeral: true,
+        }).catch(() => {
+        });
+    }
 } as InteractionFile;
