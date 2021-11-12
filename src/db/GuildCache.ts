@@ -24,15 +24,15 @@ export default class GuildCache {
      * This method will always return a player, as they are derived from guild members.
      */
     public async getPlayerData(id: string) {
-        const playerRef = await this.playerRefs
+        const snap = await this.playerRefs
             .doc(id)
             .get();
 
-        if (!playerRef.exists) {
+        if (!snap.exists) {
             return undefined;
         }
 
-        return playerRef.data() as PlayerData;
+        return snap.data() as PlayerData;
     }
 
     public async awardXp(playerId: string) {
