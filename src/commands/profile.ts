@@ -29,8 +29,8 @@ module.exports = {
         if (!player) {
             await helper.interaction.followUp({
                 embeds: [new MessageEmbed()
-                    .setTitle("You need to register for a profile!")
-                    .setDescription("Do `/register` to start gaining XP for answering questions!")],
+                    .setTitle(`${member.displayName} does not have a profile!`)
+                    .setDescription("Do `/register` to create a profile and start gaining XP for answering questions!")],
                 ephemeral: true,
             });
             return;
