@@ -34,15 +34,24 @@ export default class BotCache {
 
     public async createGuildCache(guild: Guild) {
         const snap = await this.guildRefs.doc(guild.id).get();
-        if (!snap.exists) {
-            const playerRefs = this.guildRefs
-                .doc(guild.id)
-                .collection("players");
 
-            const cache = new GuildCache(this.bot, guild, playerRefs);
-            this.guildCaches.set(guild.id, cache);
-            return cache;
+        if (!snap.exists) {
+            // create the guild doc and init "players" collection
+            await this.guildRefs
+                .doc(guild.id)
+                .create({});
+            await this.guildRefs
+                .doc(guild.id)
+                .collection("players")
+                .add({});
         }
+
+        const playerRefs = this.guildRefs
+            .doc(guild.id)
+            .collection("players");
+        const cache = new GuildCache(this.bot, guild, playerRefs);
+        this.guildCaches.set(guild.id, cache);
+        return cache;
     }
 
     public async deleteGuildCache(guildId: string) {
