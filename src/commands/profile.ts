@@ -1,7 +1,7 @@
 import { InteractionFile } from "../helpers/BotHelper";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { GuildMember, MessageEmbed } from "discord.js";
-import LevelCalculator from "../utilities/LevelCalculator";
+import XpHelper from "../utilities/XpHelper";
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -15,8 +15,6 @@ module.exports = {
         ),
 
     execute: async helper => {
-        const calculator = new LevelCalculator();
-
         // may be null
         let member = helper.getInteractionMentionable("member") as GuildMember | null;
 
@@ -25,29 +23,30 @@ module.exports = {
             member = helper.interaction.member as GuildMember;
         }
 
-        const player = await helper.cache.getPlayer(member);
+        const player = await helper.cache.getPlayerData(member.id);
 
-        // user tried to mention a bot
-        if (player.member.user.bot) {
+        // player has not registered for a profile
+        if (!player) {
             await helper.interaction.followUp({
-                content: "Bots are not valid players!",
+                embeds: [new MessageEmbed()
+                    .setTitle("You need to register for a profile!")
+                    .setDescription("Do `/register` to start gaining XP for answering questions!")],
                 ephemeral: true,
-            }).catch(() => {
             });
+            return;
         }
 
-        const { level, remainder } = calculator.getLevelFromXp(player.data.xp);
+        const { level, remainder } = XpHelper.getLevelFromXp(player.xp);
 
         await helper.interaction.followUp({
             embeds: [new MessageEmbed()
-                .setTitle(`${player.member.displayName}`)
-                .addField("Guild", `${helper.interaction.guild!.name}`)
+                .setTitle(`${member.displayName}`)
+                .addField("Guild", `${member.guild!.name}`)
                 .addField("Level", `${level} -> ${remainder} xp into next level`)
-                .addField("Total Experience", `${player.data.xp}`, true)
-                .addField("Correct", `${player.data.correct} ✅`)
-                .addField("Wrong", `${player.data.wrong} ❌`, true)],
+                .addField("Total Experience", `${player.xp}`, true)
+                .addField("Correct", `${player.correct} ✅`)
+                .addField("Wrong", `${player.wrong} ❌`, true)],
             ephemeral: true,
-        }).catch(() => {
         });
     }
 } as InteractionFile;
