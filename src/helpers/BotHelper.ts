@@ -14,16 +14,16 @@ export default class BotHelper {
     public readonly bot: Client;
     public readonly botCache: BotCache;
     public readonly messageFiles: Collection<string, Message>;
-    public readonly buttonFiles: Collection<string, ButtonFile>;
     public readonly interactionFiles: Collection<string, InteractionFile>;
+    public readonly buttonFiles: Collection<string, ButtonFile>;
 
     public constructor(bot: Client) {
         this.bot = bot;
         this.botCache = new BotCache(this.bot);
 
-        this.messageFiles = new Collection();
-        this.interactionFiles = new Collection();
-        this.buttonFiles = new Collection();
+        this.messageFiles = new Collection<string, Message>();
+        this.interactionFiles = new Collection<string, InteractionFile>();
+        this.buttonFiles = new Collection<string, ButtonFile>();
     }
 
     public setup() {
@@ -88,7 +88,7 @@ export default class BotHelper {
 
             // Slash command
             if (interaction.isCommand()) {
-                await interaction.deferReply().catch(() => {});
+                await interaction.deferReply();
                 const interactionFile = this.interactionFiles.get(interaction.commandName);
                 if (!interactionFile) return;
 
@@ -98,7 +98,6 @@ export default class BotHelper {
                     if (interactionFile.execute) {
                         await interactionFile.execute(helper);
                     }
-
                 }
                 catch (err) {
                     console.warn(err);
@@ -186,15 +185,15 @@ export default class BotHelper {
 
 export type InteractionFile = {
     data: SlashCommandBuilder,
-    execute: (helper: CommandInteractionHelper) => Promise<any>,
+    execute: (helper: CommandInteractionHelper) => Promise<void>,
 }
 
 export type InteractionSubCommandFile = {
     data: SlashCommandSubcommandBuilder,
-    execute: (helper: CommandInteractionHelper) => Promise<any>,
+    execute: (helper: CommandInteractionHelper) => Promise<void>,
 }
 
 export type ButtonFile = {
     id: string,
-    execute: (helper: ButtonInteractionHelper) => Promise<any>;
+    execute: (helper: ButtonInteractionHelper) => Promise<void>;
 }

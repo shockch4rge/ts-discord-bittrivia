@@ -1,5 +1,5 @@
 import { GuildMember } from "discord.js";
-import { Level } from "../utilities/LevelCalculator";
+import { Level } from "../utilities/XpHelper";
 
 export default class Player {
     public readonly member: GuildMember;
