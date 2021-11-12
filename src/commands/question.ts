@@ -83,6 +83,7 @@ module.exports = {
         const answerButtons: MessageButton[] = [];
         const numbers: EmojiIdentifierResolvable[] = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣"];
 
+        // append the answer choices to the embed
         for (let i = 0; i < question.allAnswers.length; i++) {
             questionEmbed.addField(`${i + 1}.`, question.allAnswers[i]);
             answerButtons.push(new MessageButton()
@@ -129,10 +130,12 @@ module.exports = {
         const answer = button.label!;
 
         if (question.checkCorrect(answer)) {
+            await helper.cache.awardXp(respondent.id);
+
             await buttonInteraction.update({
                 embeds: [new MessageEmbed()
                     .setTitle("✅  You got the correct answer!")
-                    .setDescription(`Correct answer: ${question.correctAnswer}`)
+                    .setDescription(`Correct answer: ${question.correctAnswer}\nXP Awarded: +25`)
                     .setColor(MessageLevel.SUCCESS)
                     .setFooter(`Answered by: ${respondent.displayName}`)],
                 components: [],
@@ -150,7 +153,6 @@ module.exports = {
             }).catch(() => {
             });
         }
-
         await delay(7000);
         await helper.interaction.deleteReply().catch(() => {
         });
