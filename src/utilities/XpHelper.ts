@@ -1,9 +1,9 @@
 export default class XpHelper {
-    public static questionXp = 25;
+    public static baseXp = 25;
 
     public static getLevelFromXp(xp: number): { level: Level, remainder: number } {
-        const level = xp / XpHelper.questionXp as Level;
-        const remainder = xp % XpHelper.questionXp;
+        const level = xp / XpHelper.baseXp as Level;
+        const remainder = xp % XpHelper.baseXp;
 
         return { level: level, remainder: remainder };
     }
