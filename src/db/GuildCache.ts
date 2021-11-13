@@ -20,39 +20,73 @@ export default class GuildCache {
         this.service = new TriviaService();
     }
 
+    public getPlayerData(id: string): Promise<PlayerData> {
+        return new Promise((resolve, reject) => {
+            if (this.isRegistered(id)) {
+                this.playerRefs
+                    .doc(id)
+                    .get()
+                    .then(snap => {
+                        resolve(snap.data() as PlayerData);
+                    });
+            }
+            // player already in db
+            else {
+                reject();
+            }
+        });
+    }
+
+    public async incrementStats(playerId: string) {
+        const playerRef = this.playerRefs.doc(playerId);
+
+        const xp = (await playerRef.get()).get("xp");
+        const { level } = XpHelper.getLevelFromXp(xp);
+
+        await playerRef.update({
+            level: level,
+            xp: FieldValue.increment(XpHelper.baseXp),
+            correct: FieldValue.increment(1),
+        });
+    }
+
+    public async decrementStats(playerId: string) {
+        const playerRef = this.playerRefs.doc(playerId);
+
+        await playerRef.update({
+            wrong: FieldValue.increment(1),
+        });
+    }
+
+
+    public registerPlayer(member: GuildMember): Promise<void> {
+        return new Promise((resolve, reject) => {
+            if (!this.isRegistered(member.id)) {
+                resolve(void this.playerRefs
+                    .doc(member.id)
+                    .create(Player.getEmptyData() as DocumentData));
+            }
+            // player already in db
+            else {
+                reject();
+            }
+        });
+    }
+
     /**
-     * This method will always return a player, as they are derived from guild members.
+     * Checks if a player is already registered in the database.
+     * @param playerId The id of the player to check
      */
-    public async getPlayerData(id: string) {
-        const snap = await this.playerRefs
-            .doc(id)
-            .get();
+    public isRegistered(playerId: string) {
+        let registered = false;
 
-        if (!snap.exists) {
-            return undefined;
-        }
-
-        return snap.data() as PlayerData;
-    }
-
-    public async awardXp(playerId: string) {
-        await this.playerRefs
+        this.playerRefs
             .doc(playerId)
-            .update({
-                xp: FieldValue.increment(XpHelper.questionXp),
+            .get()
+            .then(snap => {
+                registered = snap.exists;
             });
-    }
 
-    public async registerPlayer(member: GuildMember) {
-        const snap = await this.playerRefs.doc(member.id).get();
-
-        if (!snap.exists) {
-            await this.playerRefs
-                .doc(member.id)
-                .create(Player.getEmptyData() as DocumentData);
-        }
-        else {
-            throw new Error(`${member.id} already registered`);
-        }
+        return registered;
     }
 }
