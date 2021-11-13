@@ -110,6 +110,7 @@ module.exports = {
                     time: 15000,
                 }) as ButtonInteraction;
         }
+            // 15 seconds passed without an answer
         catch {
             await helper.interaction.editReply({
                 embeds: [new MessageEmbed()
@@ -124,14 +125,10 @@ module.exports = {
         }
 
         const respondent = buttonInteraction.member as GuildMember;
-        if (!respondent || respondent.user.bot) return;
-
-        const button = buttonInteraction.component as MessageButton;
-        const answer = button.label!;
+        const answer = (buttonInteraction.component as MessageButton).label!;
+        const isRegistered = helper.cache.isRegistered(respondent.id);
 
         if (question.checkCorrect(answer)) {
-            const isRegistered = helper.cache.isRegistered(respondent.id);
-
             if (isRegistered) {
                 await helper.cache.incrementStats(respondent.id);
             }
@@ -148,7 +145,9 @@ module.exports = {
             });
         }
         else {
-            await helper.cache.decrementStats(respondent.id);
+            if (isRegistered) {
+                await helper.cache.decrementStats(respondent.id);
+            }
 
             await buttonInteraction.update({
                 embeds: [new MessageEmbed()
