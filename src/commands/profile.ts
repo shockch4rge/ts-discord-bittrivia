@@ -2,6 +2,7 @@ import { InteractionFile } from "../helpers/BotHelper";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { GuildMember, MessageEmbed } from "discord.js";
 import XpHelper from "../utilities/XpHelper";
+import { PlayerData } from "../models/Player";
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -23,10 +24,13 @@ module.exports = {
             member = helper.interaction.member as GuildMember;
         }
 
-        const player = await helper.cache.getPlayerData(member.id);
+        let playerData: PlayerData;
 
+        try {
+            playerData = await helper.cache.getPlayerData(member.id);
+        }
         // player has not registered for a profile
-        if (!player) {
+        catch {
             await helper.interaction.followUp({
                 embeds: [new MessageEmbed()
                     .setTitle(`${member.displayName} does not have a profile!`)
@@ -36,16 +40,16 @@ module.exports = {
             return;
         }
 
-        const { level, remainder } = XpHelper.getLevelFromXp(player.xp);
+        const { level, remainder } = XpHelper.getLevelFromXp(playerData.xp);
 
         await helper.interaction.followUp({
             embeds: [new MessageEmbed()
                 .setTitle(`${member.displayName}`)
                 .addField("Guild", `${member.guild!.name}`)
                 .addField("Level", `${level} -> ${remainder} xp into next level`)
-                .addField("Total Experience", `${player.xp}`, true)
-                .addField("Correct", `${player.correct} ✅`)
-                .addField("Wrong", `${player.wrong} ❌`, true)],
+                .addField("Total Experience", `${playerData.xp}`, true)
+                .addField("Correct", `${playerData.correct} ✅`)
+                .addField("Wrong", `${playerData.wrong} ❌`, true)],
             ephemeral: true,
         });
     }
