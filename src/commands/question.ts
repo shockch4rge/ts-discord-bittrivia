@@ -87,10 +87,10 @@ module.exports = {
         for (let i = 0; i < question.allAnswers.length; i++) {
             questionEmbed.addField(`${i + 1}.`, question.allAnswers[i]);
             answerButtons.push(new MessageButton()
-                    .setCustomId(`answer_${i}`)
-                    .setLabel(question.allAnswers[i])
-                    .setEmoji(numbers.at(i)!)
-                    .setStyle("PRIMARY"));
+                .setCustomId(`answer_${i}`)
+                .setLabel(question.allAnswers[i])
+                .setEmoji(numbers[i])
+                .setStyle("PRIMARY"));
         }
 
         await helper.interaction.editReply({
@@ -130,12 +130,17 @@ module.exports = {
         const answer = button.label!;
 
         if (question.checkCorrect(answer)) {
-            await helper.cache.awardXp(respondent.id);
+            const isRegistered = helper.cache.isRegistered(respondent.id);
+
+            if (isRegistered) {
+                await helper.cache.incrementStats(respondent.id);
+            }
 
             await buttonInteraction.update({
                 embeds: [new MessageEmbed()
                     .setTitle("✅  You got the correct answer!")
-                    .setDescription(`Correct answer: ${question.correctAnswer}\nXP Awarded: +25`)
+                    .setDescription(`Correct answer: ${question.correctAnswer}\n
+                        ${isRegistered ? "XP Awarded: +25" : "Register for a profile to gain XP!"}`)
                     .setColor(MessageLevel.SUCCESS)
                     .setFooter(`Answered by: ${respondent.displayName}`)],
                 components: [],
@@ -143,6 +148,8 @@ module.exports = {
             });
         }
         else {
+            await helper.cache.decrementStats(respondent.id);
+
             await buttonInteraction.update({
                 embeds: [new MessageEmbed()
                     .setTitle("❌  You got the wrong answer!")
