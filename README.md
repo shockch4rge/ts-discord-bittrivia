@@ -1,9 +1,13 @@
 # ts-discord-bittrivia
 A Discord bot that gets a random question and awaits an answer.
 
-## Info
+## Description
 A fun little bot that I made in my free time to improve my knowledge with built-in Discord interactions e.g slash commands, buttons.
 
+## Credits
+Credits to Zechariah Tan for coming up with a 'framework' for the bot.
+
+## Usage
 Grab a question with `/question` (interface is still being worked on):
 
 ![8bc268f5d114a8eaa496f894be4bda74](https://user-images.githubusercontent.com/21127100/141646161-0be0cd1d-42f5-4287-b080-f29b751a2069.gif)
