@@ -1,12 +1,14 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
 import { GuildMember } from "discord.js";
+
+import { SlashCommandBuilder } from "@discordjs/builders";
+
 import { InteractionFile } from "../helpers/BotHelper";
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("ping")
         .setDescription("Receive the bot's response time, in milliseconds.")
-        .setDefaultPermission(true),
+        .setDMPermission(true),
 
     execute: async helper => {
         const member = helper.interaction.member as GuildMember;

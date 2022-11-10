@@ -1,4 +1,5 @@
 import { GuildMember } from "discord.js";
+
 import { Level } from "../utilities/XpHelper";
 
 export default class Player {
@@ -18,7 +19,7 @@ export default class Player {
     public static getEmptyData(): PlayerData {
         return {
             xp: 0,
-            level: Level.ZERO,
+            level: Level.Zero,
             correct: 0,
             wrong: 0,
         } as PlayerData

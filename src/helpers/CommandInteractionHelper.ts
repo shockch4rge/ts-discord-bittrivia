@@ -1,14 +1,15 @@
-import { CommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, CommandInteraction } from "discord.js";
+
 import GuildCache from "../db/GuildCache";
 import { InteractionHelper } from "../utilities/InteractionHelper";
 
-export default class CommandInteractionHelper extends InteractionHelper<CommandInteraction> {
-    public constructor(cache: GuildCache, interaction: CommandInteraction) {
+export default class CommandInteractionHelper extends InteractionHelper<ChatInputCommandInteraction> {
+    public constructor(cache: GuildCache, interaction: ChatInputCommandInteraction) {
         super(cache, interaction);
     }
 
     public async respond(content: string) {
-        await this.interaction.followUp({ content: content, ephemeral: true }).catch(() => {});
+        await this.interaction.followUp({ content: content, ephemeral: true }).catch(() => { });
     }
 
     public getInteractionMentionable(name: string) {

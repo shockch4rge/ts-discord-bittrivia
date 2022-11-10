@@ -1,11 +1,11 @@
 export default class XpHelper {
     public static baseXp = 25;
 
-    public static getLevelFromXp(xp: number): { level: Level, remainder: number } {
+    public static calculateLevel(xp: number): { level: Level, remainder: number } {
         const level = xp / XpHelper.baseXp as Level;
         const remainder = xp % XpHelper.baseXp;
 
-        return { level: level, remainder: remainder };
+        return { level, remainder };
     }
 
     public static getXp(from: Level, to: Level): number {
@@ -14,15 +14,15 @@ export default class XpHelper {
 }
 
 export enum Level {
-    ZERO = 0,
-    ONE = 25,
-    TWO = 75,
-    THREE = 150,
-    FOUR = 225,
-    FIVE = 300,
-    SIX = 400,
-    SEVEN = 550,
-    EIGHT = 700,
-    NINE = 850,
-    TEN = 1000,
+    Zero = 0,
+    One = 25,
+    Two = 75,
+    Three = 150,
+    Four = 225,
+    Five = 300,
+    Six = 400,
+    Seven = 550,
+    Eight = 700,
+    Nine = 850,
+    Ten = 1000,
 }

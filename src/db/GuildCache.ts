@@ -1,8 +1,10 @@
 import { Client, Guild, GuildMember } from "discord.js";
-import TriviaService from "../services/TriviaService";
-import Player, { PlayerData } from "../models/Player";
 import { firestore } from "firebase-admin";
+
+import Player, { PlayerData } from "../models/Player";
+import TriviaService from "../services/TriviaService";
 import XpHelper from "../utilities/XpHelper";
+
 import CollectionReference = firestore.CollectionReference;
 import DocumentData = firestore.DocumentData;
 import FieldValue = firestore.FieldValue;
@@ -20,30 +22,22 @@ export default class GuildCache {
         this.service = new TriviaService();
     }
 
-    public getPlayerData(id: string): Promise<PlayerData> {
-        return new Promise((resolve, reject) => {
-            if (this.isRegistered(id)) {
-                this.playerRefs
-                    .doc(id)
-                    .get()
-                    .then(snap => {
-                        resolve(snap.data() as PlayerData);
-                    });
-            }
-            // player already in db
-            else {
-                reject();
-            }
-        });
+    public async getPlayerData(id: string) {
+        if (!await this.isRegistered(id)) {
+            throw new Error("Player is not registered!");
+        }
+
+        const snap = await this.playerRefs.doc(id).get();
+        return snap.data() as PlayerData;
     }
 
     public async incrementStats(playerId: string) {
         const playerRef = this.playerRefs.doc(playerId);
 
         const xp = (await playerRef.get()).get("xp");
-        const { level } = XpHelper.getLevelFromXp(xp);
+        const { level } = XpHelper.calculateLevel(xp);
 
-        await playerRef.update({
+        return playerRef.update({
             level: level,
             xp: FieldValue.increment(XpHelper.baseXp),
             correct: FieldValue.increment(1),
@@ -53,40 +47,26 @@ export default class GuildCache {
     public async decrementStats(playerId: string) {
         const playerRef = this.playerRefs.doc(playerId);
 
-        await playerRef.update({
+        return playerRef.update({
             wrong: FieldValue.increment(1),
         });
     }
 
 
-    public registerPlayer(member: GuildMember): Promise<void> {
-        return new Promise((resolve, reject) => {
-            if (!this.isRegistered(member.id)) {
-                resolve(void this.playerRefs
-                    .doc(member.id)
-                    .create(Player.getEmptyData() as DocumentData));
-            }
-            // player already in db
-            else {
-                reject();
-            }
-        });
+    public async registerPlayer(member: GuildMember) {
+        if (await this.isRegistered(member.id)) {
+            throw new Error("Player is already registered!");
+        }
+
+        return this.playerRefs.doc(member.id).create(Player.getEmptyData());
     }
 
     /**
      * Checks if a player is already registered in the database.
      * @param playerId The id of the player to check
      */
-    public isRegistered(playerId: string) {
-        let registered = false;
-
-        this.playerRefs
-            .doc(playerId)
-            .get()
-            .then(snap => {
-                registered = snap.exists;
-            });
-
-        return registered;
+    public async isRegistered(playerId: string) {
+        const snap = await this.playerRefs.doc(playerId).get();
+        return snap.exists;
     }
 }

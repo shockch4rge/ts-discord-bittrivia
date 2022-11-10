@@ -1,8 +1,8 @@
+import { EmbedBuilder, GuildMember, SlashCommandBuilder } from "discord.js";
+
 import { InteractionFile } from "../helpers/BotHelper";
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { GuildMember, MessageEmbed } from "discord.js";
-import XpHelper from "../utilities/XpHelper";
 import { PlayerData } from "../models/Player";
+import XpHelper from "../utilities/XpHelper";
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -32,7 +32,7 @@ module.exports = {
         // player has not registered for a profile
         catch {
             await helper.interaction.followUp({
-                embeds: [new MessageEmbed()
+                embeds: [new EmbedBuilder()
                     .setTitle(`${member.displayName} does not have a profile!`)
                     .setDescription("Do `/register` to create a profile and start gaining XP for answering questions!")],
                 ephemeral: true,
@@ -40,16 +40,16 @@ module.exports = {
             return;
         }
 
-        const { level, remainder } = XpHelper.getLevelFromXp(playerData.xp);
+        const { level, remainder } = XpHelper.calculateLevel(playerData.xp);
 
         await helper.interaction.followUp({
-            embeds: [new MessageEmbed()
+            embeds: [new EmbedBuilder()
                 .setTitle(`${member.displayName}`)
-                .addField("Guild", `${member.guild!.name}`)
-                .addField("Level", `${level} -> ${remainder} xp into next level`)
-                .addField("Total Experience", `${playerData.xp}`, true)
-                .addField("Correct", `${playerData.correct} ✅`)
-                .addField("Wrong", `${playerData.wrong} ❌`, true)],
+                .addFields({ name: "Guild", value: `${member.guild!.name}` })
+                .addFields({ name: "Level", value: `${level} -> ${remainder} xp into next level` })
+                .addFields({ name: "Total Experience", value: `${playerData.xp}`, inline: true })
+                .addFields({ name: "Correct", value: `${playerData.correct} ✅` })
+                .addFields({ name: "Wrong", value: `${playerData.wrong} ❌`, inline: true })],
             ephemeral: true,
         });
     }

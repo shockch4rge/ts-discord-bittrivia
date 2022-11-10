@@ -1,6 +1,8 @@
-import { InteractionFile } from "../helpers/BotHelper";
+import { Colors, EmbedBuilder, GuildMember } from "discord.js";
+
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { GuildMember, MessageEmbed } from "discord.js";
+
+import { InteractionFile } from "../helpers/BotHelper";
 import { MessageLevel } from "../utilities/messaging";
 
 module.exports = {
@@ -16,18 +18,18 @@ module.exports = {
         }
         catch {
             await helper.interaction.followUp({
-                embeds: [new MessageEmbed()
+                embeds: [new EmbedBuilder()
                     .setTitle("❌  You've already registered in the server!")
-                    .setColor(MessageLevel.WARNING)],
+                    .setColor(Colors.Red)],
                 ephemeral: true,
             });
             return;
         }
 
         await helper.interaction.followUp({
-            embeds: [new MessageEmbed()
+            embeds: [new EmbedBuilder()
                 .setTitle("✅  Registered in the server!")
-                .setColor(MessageLevel.SUCCESS)],
+                .setColor(Colors.Green)],
             ephemeral: true,
         });
     }

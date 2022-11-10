@@ -1,10 +1,11 @@
-import GuildCache from "./GuildCache";
 import { Client, Collection, Guild } from "discord.js";
 import admin, { firestore } from "firebase-admin";
+
+import auth from "../../auth.json";
+import GuildCache from "./GuildCache";
+
 import CollectionReference = firestore.CollectionReference;
 import DocumentData = firestore.DocumentData;
-
-const auth = require("../../auth.json");
 
 export default class BotCache {
     private readonly db: FirebaseFirestore.Firestore;
@@ -13,8 +14,13 @@ export default class BotCache {
     public readonly guildRefs: CollectionReference<DocumentData>;
 
     public constructor(bot: Client) {
-        // init db
-        admin.initializeApp({ credential: admin.credential.cert(auth.firebase.service_account) });
+        admin.initializeApp({
+            credential: admin.credential.cert({
+                clientEmail: auth.firebase.client_email,
+                privateKey: auth.firebase.private_key,
+                projectId: auth.firebase.project_id,
+            }),
+        });
         this.db = admin.firestore();
 
         this.bot = bot;

@@ -1,14 +1,15 @@
 import { Client, Collection, Message } from "discord.js";
-import { SlashCommandBuilder, SlashCommandSubcommandBuilder } from "@discordjs/builders";
-import fs from 'fs';
-import path from 'path';
-import CommandInteractionHelper from "./CommandInteractionHelper";
-import BotCache from "../db/BotCache";
-import SlashCommandDeployer from "../utilities/SlashCommandDeployer";
-import GuildCache from "../db/GuildCache";
-import ButtonInteractionHelper from "./ButtonInteractionHelper";
-import { delay } from "../utilities/utils";
+import fs from "fs";
+import path from "path";
 
+import { SlashCommandBuilder, SlashCommandSubcommandBuilder } from "@discordjs/builders";
+
+import BotCache from "../db/BotCache";
+import GuildCache from "../db/GuildCache";
+import SlashCommandDeployer from "../utilities/SlashCommandDeployer";
+import { delay } from "../utilities/utils";
+import ButtonInteractionHelper from "./ButtonInteractionHelper";
+import CommandInteractionHelper from "./CommandInteractionHelper";
 
 export default class BotHelper {
     public readonly bot: Client;
@@ -87,7 +88,7 @@ export default class BotHelper {
             const guildCache = await this.botCache.getGuildCache(interaction.guild);
 
             // Slash command
-            if (interaction.isCommand()) {
+            if (interaction.isChatInputCommand()) {
                 await interaction.deferReply();
                 const interactionFile = this.interactionFiles.get(interaction.commandName);
                 if (!interactionFile) return;

@@ -1,4 +1,5 @@
 import axios from "axios";
+
 import { QuestionCategory, QuestionData, QuestionDifficulty } from "../models/Question";
 
 export default class TriviaService {
@@ -53,7 +54,6 @@ export default class TriviaService {
         }
 
         const tokenRequest = (await axios.get(`https://opentdb.com/api_token.php?command=reset&token=${this.token}`)).data as TokenRequest
-
         return tokenRequest.token;
     }
 }

@@ -1,10 +1,11 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v9";
 import { Collection } from "discord.js";
-import { InteractionFile } from "../helpers/BotHelper";
 
-const auth = require("../../auth.json");
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { REST } from "@discordjs/rest";
+
+import auth from "../../auth.json";
+import { InteractionFile } from "../helpers/BotHelper";
 
 export default class SlashCommandDeployer {
     private readonly guildId: string;
@@ -20,9 +21,9 @@ export default class SlashCommandDeployer {
     }
 
     public async deploy() {
-        const rest = new REST({ version: "9" }).setToken(auth.bot_token);
+        const rest = new REST({ version: "10" }).setToken(auth.bot_token);
         await rest.put(
-            Routes.applicationGuildCommands(auth.app_id, this.guildId),
+            Routes.applicationCommands(auth.app_id),
             {
                 body: this.commands.map(command => command.toJSON()),
             }

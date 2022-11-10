@@ -1,5 +1,6 @@
-import { shuffle } from "../utilities/utils";
 import he from "he";
+
+import { shuffle } from "../utilities/utils";
 
 export class Question {
     public readonly content: string;
@@ -22,44 +23,44 @@ export class Question {
         this.difficulty = he.decode(data.difficulty);
     }
 
-    public checkCorrect(answer: string) {
+    public check(answer: string) {
         return new RegExp(this.correctAnswer).test(answer);
     }
 }
 
 export enum QuestionCategory {
-    ANY = 0,
-    GENERAL_KNOWLEDGE = 9,
-    BOOKS,
-    FILM,
-    MUSIC,
-    MUSICALS_AND_THEATRE,
-    TELEVISION,
-    VIDEO_GAMES,
-    BOARD_GAMES,
-    NATURE,
-    COMPUTERS,
-    MATHEMATICS,
-    MYTHOLOGY,
-    SPORTS,
-    GEOGRAPHY,
-    HISTORY,
-    POLITICS,
-    ART,
-    CELEBRITIES,
-    ANIMALS,
-    VEHICLES,
-    COMICS,
-    GADGETS,
-    ANIME,
-    CARTOON
+    Any = 0,
+    GeneralKnowledge = 9,
+    Books,
+    Film,
+    Music,
+    MusicalsAndTheatre,
+    Television,
+    VideoGames,
+    BoardGames,
+    Nature,
+    Computers,
+    Mathematics,
+    Mythology,
+    Sports,
+    Geography,
+    History,
+    Politics,
+    Art,
+    Celebrities,
+    Animals,
+    Vehicles,
+    Comics,
+    Gadgets,
+    Anime,
+    Cartoon
 }
 
 export enum QuestionDifficulty {
-    EASY = "easy",
-    MEDIUM = "medium",
-    HARD = "hard",
-    ANY = ""
+    Easy = "easy",
+    Medium = "medium",
+    Hard = "hard",
+    Any = ""
 }
 
 export type QuestionData = {
